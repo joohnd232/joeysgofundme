@@ -17,6 +17,26 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>
+    <script>
+      // Fallback for static hosting (e.g. GitHub Pages root) if src/main.jsx cannot run unbundled
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (root && (!root.hasChildNodes() || root.children.length === 0)) {
+          var s = document.createElement('script');
+          s.type = 'module';
+          s.src = './assets/bundle.js';
+          document.body.appendChild(s);
+          
+          if (!document.getElementById('bundle-css')) {
+            var c = document.createElement('link');
+            c.rel = 'stylesheet';
+            c.id = 'bundle-css';
+            c.href = './assets/bundle.css';
+            document.head.appendChild(c);
+          }
+        }
+      }, 50);
+    </script>
   </body>
 </html>
 

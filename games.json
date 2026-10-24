@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1v1-lol",
+    "title": "1v1.LOL",
+    "category": "Action",
+    "description": "Fast-paced competitive 3D building and shooter game. Build platforms, practice box fights, and duel opponents in real time.",
+    "iframeSrc": "./games/1v1.html",
+    "thumbnail": "./assets/aistudio/Screenshot_2026-10-24_125753_16e69d37.png",
+    "controls": "WASD to move · Left-click to shoot · Right-click to aim · Space to jump · Shift to crouch · Z/X/C/V to build",
+    "aspectRatio": "16:9",
+    "plays": 48200,
+    "rating": 4.9,
+    "color": "#3b82f6",
+    "tags": ["3D", "Action", "Multiplayer", "Shooter", "Building"],
+    "featured": true,
+    "badge": "Popular"
+  }
+]

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minesweeper Classic</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: #0f172a;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+    }
+    .panel {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+    }
+    .lcd {
+      background: #020617;
+      color: #ef4444;
+      font-family: monospace;
+      font-size: 22px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #374151;
+      min-width: 54px;
+      text-align: center;
+    }
+    .face-btn {
+      font-size: 22px;
+      background: #334155;
+      border: 1px solid #475569;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .face-btn:active { transform: scale(0.92); }
+    .grid {
+      display: grid;
+      gap: 2px;
+      background: #334155;
+      padding: 3px;
+      border-radius: 6px;
+    }
+    .cell {
+      width: 30px;
+      height: 30px;
+      background: #475569;
+      border: 1px solid #64748b;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .cell:hover { background: #526075; }
+    .cell.revealed {
+      background: #1e293b;
+      border-color: #334155;
+      cursor: default;
+    }
+    .cell.flagged { color: #f43f5e; }
+    .cell.mine { background: #ef4444; color: white; }
+    .c-1 { color: #38bdf8; }
+    .c-2 { color: #22c55e; }
+    .c-3 { color: #f43f5e; }
+    .c-4 { color: #a855f7; }
+    .c-5 { color: #f59e0b; }
+    .c-6 { color: #06b6d4; }
+    .c-7 { color: #e11d48; }
+    .c-8 { color: #cbd5e1; }
+    .controls-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .diff-btn {
+      background: #334155;
+      border: 1px solid #475569;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .diff-btn.active {
+      background: #0284c7;
+      color: white;
+      font-weight: bold;
+    }
+    .flag-mode-btn {
+      background: #334155;
+      border: 1px solid #475569;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .flag-mode-btn.active {
+      background: #ef4444;
+      color: white;
+    }
+    .hint-text {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="top-bar">
+      <div class="lcd" id="flagsLeft">010</div>
+      <button class="face-btn" id="faceBtn">🙂</button>
+      <div class="lcd" id="timerVal">000</div>
+    </div>
+
+    <div class="grid" id="gridBox"></div>
+
+    <div class="controls-row">
+      <button class="diff-btn active" data-r="9" data-c="9" data-m="10">Easy (9x9)</button>
+      <button class="diff-btn" data-r="12" data-c="12" data-m="20">Medium (12x12)</button>
+      <button class="flag-mode-btn" id="flagModeToggle">🚩 Flag Mode: OFF</button>
+    </div>
+  </div>
+
+  <div class="hint-text">
+    Left-Click: Reveal · Right-Click: Flag · First Click Safe
+  </div>
+
+  <script>
+    const gridBox = document.getElementById('gridBox');
+    const flagsLeftEl = document.getElementById('flagsLeft');
+    const timerValEl = document.getElementById('timerVal');
+    const faceBtn = document.getElementById('faceBtn');
+    const flagModeToggle = document.getElementById('flagModeToggle');
+    const diffButtons = document.querySelectorAll('.diff-btn');
+
+    let rows = 9;
+    let cols = 9;
+    let totalMines = 10;
+    let board = [];
+    let isStarted = false;
+    let isGameOver = false;
+    let timer = 0;
+    let timerInterval = null;
+    let flagMode = false;
+    let remainingFlags = 10;
+
+    let audioCtx = null;
+    function playBeep(freq, dur) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    function initBoard() {
+      if (timerInterval) clearInterval(timerInterval);
+      timer = 0;
+      isStarted = false;
+      isGameOver = false;
+      remainingFlags = totalMines;
+      flagsLeftEl.textContent = String(remainingFlags).padStart(3, '0');
+      timerValEl.textContent = '000';
+      faceBtn.textContent = '🙂';
+
+      gridBox.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
+      gridBox.innerHTML = '';
+
+      board = [];
+      for (let r = 0; r < rows; r++) {
+        board[r] = [];
+        for (let c = 0; c < cols; c++) {
+          const cellEl = document.createElement('div');
+          cellEl.className = 'cell';
+          cellEl.dataset.r = r;
+          cellEl.dataset.c = c;
+          gridBox.appendChild(cellEl);
+
+          board[r][c] = {
+            r, c,
+            isMine: false,
+            revealed: false,
+            flagged: false,
+            neighborMines: 0,
+            el: cellEl
+          };
+
+          cellEl.addEventListener('click', (e) => handleClick(r, c));
+          cellEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            toggleFlag(r, c);
+          });
+        }
+      }
+    }
+
+    function generateMines(safeR, safeC) {
+      let placed = 0;
+      while (placed < totalMines) {
+        const r = Math.floor(Math.random() * rows);
+        const c = Math.floor(Math.random() * cols);
+        if (!board[r][c].isMine && !(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1)) {
+          board[r][c].isMine = true;
+          placed++;
+        }
+      }
+
+      // Count neighbors
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (!board[r][c].isMine) {
+            let count = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+              for (let dc = -1; dc <= 1; dc++) {
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc].isMine) count++;
+              }
+            }
+            board[r][c].neighborMines = count;
+          }
+        }
+      }
+    }
+
+    function handleClick(r, c) {
+      if (isGameOver) return;
+      if (flagMode) {
+        toggleFlag(r, c);
+        return;
+      }
+      const cell = board[r][c];
+      if (cell.flagged || cell.revealed) return;
+
+      if (!isStarted) {
+        isStarted = true;
+        generateMines(r, c);
+        timerInterval = setInterval(() => {
+          timer = Math.min(999, timer + 1);
+          timerValEl.textContent = String(timer).padStart(3, '0');
+        }, 1000);
+      }
+
+      if (cell.isMine) {
+        // Explode
+        cell.el.classList.add('mine');
+        cell.el.textContent = '💣';
+        endGame(false);
+      } else {
+        reveal(r, c);
+        playBeep(400, 0.04);
+        checkWin();
+      }
+    }
+
+    function reveal(r, c) {
+      if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+      const cell = board[r][c];
+      if (cell.revealed || cell.flagged || cell.isMine) return;
+
+      cell.revealed = true;
+      cell.el.classList.add('revealed');
+
+      if (cell.neighborMines > 0) {
+        cell.el.textContent = cell.neighborMines;
+        cell.el.classList.add(`c-${cell.neighborMines}`);
+      } else {
+        // Flood fill
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr !== 0 || dc !== 0) reveal(r + dr, c + dc);
+          }
+        }
+      }
+    }
+
+    function toggleFlag(r, c) {
+      if (isGameOver) return;
+      const cell = board[r][c];
+      if (cell.revealed) return;
+
+      cell.flagged = !cell.flagged;
+      if (cell.flagged) {
+        cell.el.classList.add('flagged');
+        cell.el.textContent = '🚩';
+        remainingFlags--;
+        playBeep(600, 0.05);
+      } else {
+        cell.el.classList.remove('flagged');
+        cell.el.textContent = '';
+        remainingFlags++;
+        playBeep(350, 0.05);
+      }
+      flagsLeftEl.textContent = String(Math.max(-99, remainingFlags)).padStart(3, '0');
+      checkWin();
+    }
+
+    function checkWin() {
+      let unrevealedSafe = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (!board[r][c].isMine && !board[r][c].revealed) unrevealedSafe++;
+        }
+      }
+      if (unrevealedSafe === 0) {
+        endGame(true);
+      }
+    }
+
+    function endGame(won) {
+      isGameOver = true;
+      if (timerInterval) clearInterval(timerInterval);
+      faceBtn.textContent = won ? '😎' : '😵';
+
+      // Reveal all mines
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (board[r][c].isMine) {
+            if (!board[r][c].flagged) {
+              board[r][c].el.textContent = '💣';
+              if (!won) board[r][c].el.classList.add('mine');
+            }
+          } else if (board[r][c].flagged) {
+            board[r][c].el.textContent = '❌';
+          }
+        }
+      }
+
+      if (won) playBeep(880, 0.3);
+      else playBeep(160, 0.4);
+    }
+
+    faceBtn.addEventListener('click', initBoard);
+
+    flagModeToggle.addEventListener('click', () => {
+      flagMode = !flagMode;
+      flagModeToggle.classList.toggle('active', flagMode);
+      flagModeToggle.textContent = flagMode ? '🚩 Flag Mode: ON' : '🚩 Flag Mode: OFF';
+    });
+
+    diffButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        diffButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        rows = parseInt(btn.dataset.r, 10);
+        cols = parseInt(btn.dataset.c, 10);
+        totalMines = parseInt(btn.dataset.m, 10);
+        initBoard();
+      });
+    });
+
+    initBoard();
+  </script>
+</body>
+</html>

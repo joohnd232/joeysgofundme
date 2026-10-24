@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>1v1.LOL</title>
+  <style>body,html,iframe{margin:0;padding:0;height:100%;width:100%;overflow:hidden}.forceIosScrolling{overflow:scroll;-webkit-overflow-scrolling:touch}</style>
+  <script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.en.etOqPKhAhvg.O/m=gapi_rpc/rt=j/sv=1/d=1/ed=1/rs=AHpOoo-l5JrVgGKVELwC844E6riBHX86-w/cb=gapi.loaded_0?le=scs,fedcm_migration_mod" async=""></script>
+  <script src="https://apis.google.com/js/api.js?checkCookie=1" gapi_processed="true"></script>
+</head>
+<body>
+<iframe id="innerFrame" name="innerFrame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-popups-to-escape-sandbox allow-downloads allow-storage-access-by-user-activation" frameborder="0" allowfullscreen="" src="https://classroom4x.dev/1v1/" style="overflow: auto;">
+</iframe>
+
+<script>
+  let policy;
+  if (window.trustedTypes && window.trustedTypes.createPolicy) {
+    policy = window.trustedTypes.createPolicy('atari-gapi-loader', {
+      createScriptURL: (url) => {
+        if (url === 'https://apis.google.com/js/api.js?checkCookie=1') {
+          return url;
+        }
+        throw new Error('Attempted to load unexpected script URL');
+      }
+    });
+  }
+
+  function loadGapi() {
+    var loaderScript = document.createElement('script');
+    var url = 'https://apis.google.com/js/api.js?checkCookie=1';
+    if (policy) {
+      loaderScript.src = policy.createScriptURL(url);
+    } else {
+      loaderScript.setAttribute('src', url);
+    }
+    loaderScript.onload = function() {
+      this.onload = function() {};
+      loadGapiClient();
+    };
+    loaderScript.onreadystatechange = function() {
+      if (this.readyState === 'complete') {
+        this.onload();
+      }
+    };
+    (document.head || document.body || document.documentElement).appendChild(loaderScript);
+  }
+
+  function updateInnerFrame(url, enableInteraction, forceIosScrolling) {
+    var urlEl = document.createElement('a');
+    urlEl.setAttribute('href', url);
+    if (urlEl.protocol != "https:" && urlEl.protocol != "http:") {
+      return;
+    }
+    var iframe = document.getElementById('innerFrame');
+    iframe.src = url;
+    iframe.onload = function() {
+      try { gapi.rpc.call('..', 'innerFrameLoaded'); } catch(e) {}
+    };
+
+    if (enableInteraction) {
+      if (forceIosScrolling) {
+        var iframeParent = iframe.parentElement;
+        iframeParent.classList.add('forceIosScrolling');
+      } else {
+        iframe.style.overflow = 'auto';
+      }
+    } else {
+      iframe.style.pointerEvents = 'none';
+    }
+  }
+
+  function updateInnerIframeCode(userCode, enableInteraction, forceIosScrolling, enableHtmlSitesGenAi, isLiquidArtifact = false, inEditor = false, enableLiquidAppsVerticalScrolling = false, isFullPageEmbed = false, isInteractiveFullPageEmbed = false, textEditLabels = null) {
+    if (((enableHtmlSitesGenAi && (isLiquidArtifact || isFullPageEmbed)) || isInteractiveFullPageEmbed) && enableInteraction) {
+      var innerFrame = document.getElementById('innerFrame');
+      if (innerFrame) {
+        innerFrame.style.pointerEvents = 'auto';
+        if (enableLiquidAppsVerticalScrolling) {
+          innerFrame.style.overflowX = 'auto';
+          innerFrame.style.overflowY = 'hidden';
+          innerFrame.setAttribute('scrolling', 'no');
+        } else {
+          innerFrame.setAttribute('scrolling', 'auto');
+        }
+      }
+    }
+    try {
+      gapi.rpc.setup('innerFrame');
+      gapi.rpc.call(
+        'innerFrame',
+        'updateUserHtmlFrame',
+        undefined,
+        userCode,
+        enableInteraction,
+        forceIosScrolling,
+        enableHtmlSitesGenAi,
+        isLiquidArtifact,
+        inEditor,
+        enableLiquidAppsVerticalScrolling,
+        isFullPageEmbed,
+        isInteractiveFullPageEmbed,
+        textEditLabels);
+    } catch(e) {}
+  }
+
+  const MessageAction = {
+    BACKGROUND_COLOR: 'ATARI_CODE_EMBED_BACKGROUND_COLOR',
+    GENAI_TEXT_EDIT: 'ATARI_GENAI_TEXT_EDIT',
+    JS_CRASH: 'onJsCrash',
+    REDO: 'ATARI_CODE_EMBED_REDO',
+    RESIZE: 'ATARI_CODE_EMBED_RESIZE',
+    UNDO: 'ATARI_CODE_EMBED_UNDO'
+  };
+
+  function onPostMessage(ev) {
+    var innerFrame = document.getElementById('innerFrame');
+    var type = ev.data && ev.data['type'];
+    if (ev.data['magic'] != 'SHIC' && (type != MessageAction.GENAI_TEXT_EDIT && type != MessageAction.JS_CRASH && type != MessageAction.RESIZE && type != MessageAction.BACKGROUND_COLOR && type != MessageAction.UNDO && type != MessageAction.REDO || !innerFrame || ev.source !== innerFrame.contentWindow)) {
+      return;
+    }
+    switch (type) {
+      case 'resize':
+        var height = ev.data['height'];
+        try { gapi.rpc.call('..', 'resize', undefined, height); } catch(e) {}
+        break;
+      case MessageAction.GENAI_TEXT_EDIT:
+      case MessageAction.RESIZE:
+      case MessageAction.BACKGROUND_COLOR:
+      case MessageAction.UNDO:
+      case MessageAction.REDO:
+        window.parent.postMessage(ev.data, '*');
+        break;
+      case MessageAction.JS_CRASH:
+        try {
+          gapi.rpc.call('..', 'onJsCrash', undefined, {
+            message: ev.data['message'],
+            stack: ev.data['stack']
+          });
+        } catch(e) {}
+        break;
+    }
+  }
+
+  function onGapiInitialized() {
+    try {
+      gapi.rpc.call('..', 'gapiInitialized');
+      gapi.rpc.register('updateInnerFrame', updateInnerFrame);
+      gapi.rpc.register('updateInnerIframeCode', updateInnerIframeCode);
+      window.addEventListener('message', onPostMessage);
+    } catch(e) {}
+  }
+
+  function loadGapiClient() {
+    try {
+      gapi.load('gapi.rpc', onGapiInitialized);
+    } catch(e) {}
+  }
+
+  if (document.readyState == 'complete') {
+    loadGapi();
+  } else {
+    self.addEventListener('load', loadGapi);
+  }
+</script>
+</body>
+</html>
