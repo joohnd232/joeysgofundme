@@ -1,0 +1,6 @@
+{
+  "name": "Unblocked Arcade",
+  "description": "High-performance unblocked games portal with instant iframe playback, stealth tab cloaker, panic key, and custom games library.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
