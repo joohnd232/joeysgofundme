@@ -3,6 +3,7 @@ import {
   ArrowLeft, Maximize2, RotateCcw, Bookmark, 
   ExternalLink, Gamepad2, Sparkles, Layers, Code
 } from 'lucide-react';
+import { resolveGameSrc } from '../data/gamesData';
 
 export const GamePlayer = ({
   game,
@@ -15,6 +16,8 @@ export const GamePlayer = ({
   const iframeRef = useRef(null);
   const [isTheater, setIsTheater] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
+
+  const resolvedSrc = resolveGameSrc(game.iframeSrc);
 
   const handleFullscreen = () => {
     if (!containerRef.current) return;
@@ -31,6 +34,7 @@ export const GamePlayer = ({
 
   const handleAboutBlankCloak = () => {
     try {
+      const fullUrl = new URL(resolvedSrc, window.location.href).href;
       const win = window.open('about:blank', '_blank');
       if (win) {
         win.document.write(`
@@ -44,14 +48,14 @@ export const GamePlayer = ({
             </style>
           </head>
           <body>
-            <iframe src="${window.location.origin}${game.iframeSrc}" allowfullscreen></iframe>
+            <iframe src="${fullUrl}" allowfullscreen></iframe>
           </body>
           </html>
         `);
         win.document.close();
       }
     } catch (e) {
-      window.open(game.iframeSrc, '_blank');
+      window.open(resolvedSrc, '_blank');
     }
   };
 
@@ -149,11 +153,11 @@ export const GamePlayer = ({
         <iframe
           key={iframeKey}
           ref={iframeRef}
-          src={game.iframeSrc}
+          src={resolvedSrc}
           title={game.title}
-          allow="autoplay; fullscreen; pointer-lock"
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
-          className="w-full h-full min-h-[520px] border-none bg-transparent block"
+          allow="autoplay; fullscreen; pointer-lock; camera; microphone; display-capture; clipboard-read; clipboard-write"
+          sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-popups-to-escape-sandbox allow-downloads allow-pointer-lock allow-storage-access-by-user-activation"
+          className="w-full h-full min-h-[580px] border-none bg-transparent block"
         />
       </div>
 

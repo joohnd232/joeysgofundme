@@ -1,153 +1,29 @@
+export function resolveGameSrc(src) {
+  if (!src) return '';
+  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+    return src;
+  }
+  const clean = src.startsWith('/') ? src.slice(1) : src.startsWith('./') ? src.slice(2) : src;
+  const base = import.meta.env?.BASE_URL || './';
+  return base.endsWith('/') ? `${base}${clean}` : `${base}/${clean}`;
+}
+
 export const DEFAULT_GAMES = [
   {
-    id: 'snake',
-    title: 'Snake Classic',
-    category: 'Retro',
-    description: 'Devour glowing food and grow your snake while steering clear of walls and your own tail.',
-    iframeSrc: '/games/snake.html',
-    controls: 'Arrow Keys or WASD to navigate. Space to pause.',
-    aspectRatio: '1:1',
-    plays: 18420,
+    id: '1v1-lol',
+    title: '1v1.LOL',
+    category: 'Action',
+    description: 'Fast-paced competitive 3D building and shooter game. Build platforms, practice box fights, and duel opponents in real time.',
+    iframeSrc: './games/1v1.html',
+    thumbnail: './assets/aistudio/Screenshot_2026-10-24_125753_16e69d37.png',
+    controls: 'WASD to move · Left-click to shoot · Right-click to aim · Space to jump · Shift to crouch · Z/X/C/V to build',
+    aspectRatio: '16:9',
+    plays: 48200,
     rating: 4.9,
-    color: '#10b981',
-    tags: ['Classic', 'Retro', 'Arcade', 'Singleplayer'],
+    color: '#3b82f6',
+    tags: ['3D', 'Action', 'Multiplayer', 'Shooter', 'Building'],
     featured: true,
     badge: 'Popular'
-  },
-  {
-    id: 'tetris',
-    title: 'Block Drop (Tetris)',
-    category: 'Puzzle',
-    description: 'Stack falling tetrominoes and clear lines before the matrix overflows.',
-    iframeSrc: '/games/tetris.html',
-    controls: 'Arrow Keys / WASD: Move/Rotate. Space: Hard Drop. C: Hold.',
-    aspectRatio: '4:3',
-    plays: 24900,
-    rating: 5.0,
-    color: '#8b5cf6',
-    tags: ['Puzzle', 'Brain', 'Retro', 'Endless'],
-    featured: true,
-    badge: 'Top Rated'
-  },
-  {
-    id: 'space-invaders',
-    title: 'Galactic Guardian',
-    category: 'Action',
-    description: 'Pilot your starship, blast descending alien armada waves, and take cover behind bunkers.',
-    iframeSrc: '/games/space-invaders.html',
-    controls: 'Left / Right (A / D) to steer. Space to fire cannons.',
-    aspectRatio: '4:3',
-    plays: 15830,
-    rating: 4.8,
-    color: '#06b6d4',
-    tags: ['Action', 'Shooter', 'Retro', 'Space'],
-    featured: true,
-    badge: 'Action Pick'
-  },
-  {
-    id: 'flappy',
-    title: 'Flappy Flyer',
-    category: 'Arcade',
-    description: 'Navigate tight gaps between green obstacles with gentle wing flaps and precise timing.',
-    iframeSrc: '/games/flappy.html',
-    controls: 'Click / Tap screen or Spacebar to flap.',
-    aspectRatio: '9:14',
-    plays: 31200,
-    rating: 4.7,
-    color: '#f59e0b',
-    tags: ['Arcade', 'Skill', 'Casual', 'Mobile Friendly'],
-    featured: true,
-    badge: 'Viral Hit'
-  },
-  {
-    id: '2048',
-    title: '2048 Arcade',
-    category: 'Puzzle',
-    description: 'Slide numbered tiles across the 4x4 board to merge identical numbers until reaching 2048.',
-    iframeSrc: '/games/2048.html',
-    controls: 'Arrow keys or touch swipe in any direction.',
-    aspectRatio: '1:1',
-    plays: 22100,
-    rating: 4.9,
-    color: '#eab308',
-    tags: ['Numbers', 'Puzzle', 'Logic', 'Strategy'],
-    featured: false,
-    badge: 'Logic'
-  },
-  {
-    id: 'dino-runner',
-    title: 'Night Runner',
-    category: 'Runner',
-    description: 'Dash through a neon synthwave cityscape, jumping hurdles and ducking under aerial drones.',
-    iframeSrc: '/games/dino-runner.html',
-    controls: 'Space / Up: Jump. Down / S: Duck.',
-    aspectRatio: '16:9',
-    plays: 27400,
-    rating: 4.8,
-    color: '#f43f5e',
-    tags: ['Runner', 'Endless', 'Reflex', 'Synthwave'],
-    featured: true,
-    badge: 'Endless'
-  },
-  {
-    id: 'breakout',
-    title: 'Brick Smasher DX',
-    category: 'Arcade',
-    description: 'Bounce the steel ball against colorful multi-tiered brick walls with your responsive paddle.',
-    iframeSrc: '/games/breakout.html',
-    controls: 'Mouse Move or Left/Right Arrow keys to steer paddle.',
-    aspectRatio: '4:3',
-    plays: 12800,
-    rating: 4.6,
-    color: '#ec4899',
-    tags: ['Breakout', 'Arcade', 'Classic', 'Skill'],
-    featured: false,
-    badge: 'Arcade'
-  },
-  {
-    id: 'pong',
-    title: 'Retro Pong DX',
-    category: 'Sports',
-    description: 'The grandfather of video games! Challenge smart computer AI or play 2-Player local co-op.',
-    iframeSrc: '/games/pong.html',
-    controls: 'P1: W/S or Up/Down. P2: Up/Down in 2-Player mode.',
-    aspectRatio: '16:10',
-    plays: 11300,
-    rating: 4.7,
-    color: '#6366f1',
-    tags: ['Sports', '2-Player', 'Retro', 'Competitive'],
-    featured: false,
-    badge: '2-Player'
-  },
-  {
-    id: 'minesweeper',
-    title: 'Minesweeper Classic',
-    category: 'Puzzle',
-    description: 'Uncover numbers, calculate mine distributions, and flag all hidden charges safely.',
-    iframeSrc: '/games/minesweeper.html',
-    controls: 'Left-Click: Reveal cell. Right-Click: Place flag.',
-    aspectRatio: '1:1',
-    plays: 14200,
-    rating: 4.7,
-    color: '#14b8a6',
-    tags: ['Minesweeper', 'Logic', 'Strategy', 'Classic'],
-    featured: false,
-    badge: 'Brain'
-  },
-  {
-    id: 'pacmaze',
-    title: 'Pac-Maze Runner',
-    category: 'Retro',
-    description: 'Chomp through labyrinth dots, snag power energizers, and turn the tables on roaming ghosts.',
-    iframeSrc: '/games/pacmaze.html',
-    controls: 'Arrow keys or WASD to navigate maze corridors.',
-    aspectRatio: '1:1',
-    plays: 19500,
-    rating: 4.9,
-    color: '#eab308',
-    tags: ['Maze', 'Retro', 'Arcade', 'Classic'],
-    featured: false,
-    badge: 'Classic'
   }
 ];
 
@@ -212,10 +88,17 @@ export function getCustomGames() {
 export function saveCustomGame(game) {
   const current = getCustomGames();
   const newGame = {
-    ...game,
     id: 'custom-' + Date.now(),
+    title: game.title || 'Custom iFrame Game',
+    category: game.category || 'Custom',
+    description: game.description || 'Custom embedded iFrame',
+    iframeSrc: game.iframeSrc,
+    controls: game.controls || 'Mouse & Keyboard',
+    aspectRatio: game.aspectRatio || '16:9',
     plays: 1,
     rating: 5.0,
+    color: game.color || '#6366f1',
+    tags: game.tags || ['Custom', 'IFrame'],
     isCustom: true
   };
   const updated = [newGame, ...current];
@@ -227,14 +110,15 @@ export function deleteCustomGame(id) {
   const current = getCustomGames();
   const updated = current.filter(g => g.id !== id);
   localStorage.setItem(CUSTOM_GAMES_STORAGE_KEY, JSON.stringify(updated));
+  return updated;
 }
 
 export function getFavoriteIds() {
   try {
     const raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : ['snake', 'tetris', 'dino-runner'];
+    return raw ? JSON.parse(raw) : [];
   } catch (e) {
-    return ['snake', 'tetris'];
+    return [];
   }
 }
 
@@ -255,7 +139,7 @@ export function recordGamePlay(id) {
   } catch (e) {}
 }
 
-export function getPlayCount(id, defaultPlays) {
+export function getPlayCount(id, defaultPlays = 0) {
   try {
     const raw = localStorage.getItem(PLAY_COUNTS_STORAGE_KEY);
     const map = raw ? JSON.parse(raw) : {};

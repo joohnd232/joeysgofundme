@@ -1,12 +1,10 @@
 import React from 'react';
-import { Play, Sparkles, PlusCircle, EyeOff, Cpu } from 'lucide-react';
+import { Sparkles, Code2, EyeOff, ShieldCheck, Play } from 'lucide-react';
 import heroImgPath from '../assets/images/arcade_hero_banner_1792800669964.jpg';
 
 export const HeroBanner = ({
-  onRandomPlay,
-  onOpenAddGame,
-  onOpenCloak,
-  totalGames
+  onOpenCustomIframe,
+  onOpenCloak
 }) => {
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-slate-800 bg-[#0c1222] shadow-2xl mb-8">
@@ -16,7 +14,7 @@ export const HeroBanner = ({
           src={heroImgPath}
           alt="Arcade Portal Banner"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center opacity-40 scale-105 filter blur-[0.5px]"
+          className="w-full h-full object-cover object-center opacity-30 scale-105 filter blur-[0.5px]"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
           }}
@@ -29,33 +27,25 @@ export const HeroBanner = ({
       <div className="relative z-10 p-6 sm:p-10 max-w-3xl space-y-4">
         <div className="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">
           <Sparkles className="w-4 h-4" />
-          <span>IFrame Sandboxed Arcade Hub</span>
+          <span>Stealth Unblocked iFrame Portal</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight" style={{ textWrap: 'balance' }}>
-          Play Pure Unblocked Games Instantly
+          Unblocked iFrame Games
         </h1>
 
         <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-          Clean client-side arcade games stored as fast, isolated IFrames inside a structured JSON database. Zero lag, no external tracking, with built-in tab disguises and instant panic keys.
+          Embed and play any game or web app in an isolated, sandboxed iFrame. Featuring fullscreen, theater mode, one-click tab disguises, and instant panic keys.
         </p>
 
         {/* Action CTAs */}
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <button
-            onClick={onRandomPlay}
+            onClick={onOpenCustomIframe}
             className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02]"
           >
-            <Play className="w-4 h-4 fill-white" />
-            <span>Quick Play Random</span>
-          </button>
-
-          <button
-            onClick={onOpenAddGame}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold rounded-lg border border-slate-700 transition-colors"
-          >
-            <PlusCircle className="w-4 h-4 text-indigo-400" />
-            <span>Add Custom IFrame</span>
+            <Code2 className="w-4 h-4" />
+            <span>Launch Custom iFrame</span>
           </button>
 
           <button
@@ -70,15 +60,15 @@ export const HeroBanner = ({
         {/* Feature Strips (No pills - clean unboxed metadata with separators) */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 text-xs text-slate-400 border-t border-slate-800/80">
           <span className="flex items-center gap-1.5 text-slate-300">
-            <Cpu className="w-3.5 h-3.5 text-indigo-400" />
-            <strong className="font-semibold text-white">{totalGames}</strong> Games in JSON
+            <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Sandboxed iFrame Security</span>
           </span>
           <span aria-hidden="true" className="text-slate-600">·</span>
-          <span>100% Client-Side IFrames</span>
-          <span aria-hidden="true" className="text-slate-600">·</span>
-          <span>Zero Server Dependencies</span>
+          <span>Zero Server Storage</span>
           <span aria-hidden="true" className="text-slate-600">·</span>
           <span>Stealth Panic Protection</span>
+          <span aria-hidden="true" className="text-slate-600">·</span>
+          <span>GitHub Pages Ready</span>
         </div>
       </div>
     </div>

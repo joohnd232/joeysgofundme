@@ -1,21 +1,18 @@
 import React from 'react';
-import { EyeOff, ShieldAlert, PlusCircle, Database, Bookmark, Gamepad2 } from 'lucide-react';
+import { EyeOff, ShieldAlert, Code2, Gamepad2 } from 'lucide-react';
 
 export const Navbar = ({
-  activeView,
-  onNavigate,
+  onNavigateHome,
+  onOpenCustomIframe,
   onOpenCloak,
-  onOpenAddGame,
-  onOpenJsonViewer,
   onTriggerPanic,
-  favoritesCount,
   panicKey
 }) => {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-8 px-6 py-4 bg-[#090d16]/90 backdrop-blur-md border-b border-slate-800">
       {/* Zone 1: Single text element wordmark */}
       <div 
-        onClick={() => onNavigate('home')}
+        onClick={onNavigateHome}
         className="flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 group"
       >
         <div className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
@@ -26,39 +23,28 @@ export const Navbar = ({
         </span>
       </div>
 
-      {/* Zone 2: 4-5 concise single-line text links */}
-      <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
+      {/* Zone 2: Navigation link / custom iframe CTA */}
+      <div className="hidden sm:flex items-center gap-4">
         <button
-          onClick={() => onNavigate('home')}
-          className={`hover:text-white transition-colors whitespace-nowrap shrink-0 ${activeView === 'home' ? 'text-indigo-400 font-semibold' : ''}`}
+          onClick={onOpenCustomIframe}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-md shadow-indigo-600/25 transition-all hover:scale-[1.02] whitespace-nowrap shrink-0"
         >
-          All Games
+          <Code2 className="w-3.5 h-3.5" />
+          <span>Custom iFrame</span>
         </button>
-        <button
-          onClick={() => onNavigate('favorites')}
-          className={`flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap shrink-0 ${activeView === 'favorites' ? 'text-indigo-400 font-semibold' : ''}`}
-        >
-          <Bookmark className="w-3.5 h-3.5" />
-          <span>Favorites ({favoritesCount})</span>
-        </button>
-        <button
-          onClick={onOpenAddGame}
-          className="flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap shrink-0"
-        >
-          <PlusCircle className="w-3.5 h-3.5" />
-          <span>Add Custom IFrame</span>
-        </button>
-        <button
-          onClick={onOpenJsonViewer}
-          className="flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap shrink-0"
-        >
-          <Database className="w-3.5 h-3.5" />
-          <span>JSON Database</span>
-        </button>
-      </nav>
+      </div>
 
       {/* Zone 3: 1 primary action area (Stealth Utilities) */}
       <div className="flex items-center gap-2.5 shrink-0">
+        <button
+          onClick={onOpenCustomIframe}
+          title="Launch custom iframe"
+          className="sm:hidden flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors whitespace-nowrap shrink-0"
+        >
+          <Code2 className="w-3.5 h-3.5" />
+          <span>iFrame</span>
+        </button>
+
         <button
           onClick={onOpenCloak}
           title="Disguise Tab Title & Favicon (Google Docs, Canvas, etc.)"

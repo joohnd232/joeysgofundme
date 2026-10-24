@@ -1,18 +1,18 @@
 import React from 'react';
-import { Play, Bookmark } from 'lucide-react';
-import spaceInvadersImg from '../assets/images/arcade_space_invaders_1792800671866.jpg';
-import pixelRunnerImg from '../assets/images/arcade_pixel_runner_1792800671135.jpg';
+import { Play, Bookmark, Trash2 } from 'lucide-react';
+import game1v1Img from '../assets/images/1v1_lol_cover.png';
 
 export const GameCard = ({
   game,
   onSelect,
   isFavorite,
-  onToggleFavorite
+  onToggleFavorite,
+  onDelete
 }) => {
-  // Use specific high-fidelity generated images for supported games
+  // Use uploaded official art for 1v1.LOL or game.thumbnail
   const getThumbnailImage = () => {
-    if (game.id === 'space-invaders') return spaceInvadersImg;
-    if (game.id === 'dino-runner') return pixelRunnerImg;
+    if (game.id === '1v1-lol' || game.title?.toLowerCase().includes('1v1')) return game1v1Img;
+    if (game.thumbnail) return game.thumbnail;
     return null;
   };
 
@@ -60,18 +60,32 @@ export const GameCard = ({
           </div>
         )}
 
-        {/* Favorite Button Overlay */}
-        <button
-          onClick={onToggleFavorite}
-          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          className={`absolute top-2.5 right-2.5 z-10 p-1.5 rounded-lg backdrop-blur-md transition-colors ${
-            isFavorite
-              ? 'bg-amber-500/30 text-amber-300 border border-amber-500/60'
-              : 'bg-black/50 text-slate-400 hover:text-white border border-white/10'
-          }`}
-        >
-          <Bookmark className={`w-3.5 h-3.5 ${isFavorite ? 'fill-amber-400 text-amber-400' : ''}`} />
-        </button>
+        {/* Favorite & Delete Buttons Overlay */}
+        <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(game.id);
+              }}
+              title="Remove game"
+              className="p-1.5 rounded-lg backdrop-blur-md bg-black/50 text-slate-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/50 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={onToggleFavorite}
+            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            className={`p-1.5 rounded-lg backdrop-blur-md transition-colors ${
+              isFavorite
+                ? 'bg-amber-500/30 text-amber-300 border border-amber-500/60'
+                : 'bg-black/50 text-slate-400 hover:text-white border border-white/10'
+            }`}
+          >
+            <Bookmark className={`w-3.5 h-3.5 ${isFavorite ? 'fill-amber-400 text-amber-400' : ''}`} />
+          </button>
+        </div>
 
         {/* Hover Play Icon overlay */}
         <div className="absolute inset-0 bg-indigo-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
